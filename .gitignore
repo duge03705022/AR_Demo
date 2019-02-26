@@ -1,1 +1,14 @@
-APK/
+# unity ignore dir
+/[Aa]pk/
+/[Bb]in/
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+ 
+# unity ignore file
+*.csproj
+*.unityproj
+*.sln
+*.user
+*.userprefs
+*.tmp
