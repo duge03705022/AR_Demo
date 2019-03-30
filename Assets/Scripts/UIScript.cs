@@ -13,9 +13,11 @@ public class UIScript : MonoBehaviour
     public int touchCount;
     public bool ifAction;
 
-    public GameObject[] frames;
-    public GameObject[] ads;
+    public GameObject[] icons;
+    public GameObject[] publicAds;
+    public GameObject[,] ads;
     public int nowTouch;
+    public int nowAd;
 
     // Start is called before the first frame update
     void Start()
@@ -35,7 +37,16 @@ public class UIScript : MonoBehaviour
         ifAction = false;
 
         nowTouch = 0;
-        UpdateFrame();
+        nowAd = 0;
+
+        ads = new GameObject[4, 2];
+        for (int i = 0; i < 4; i++)
+        {
+            ads[i, 0] = publicAds[i * 2];
+            ads[i, 1] = publicAds[i * 2 + 1];
+        }
+
+        InitAll();
     }
 
     // Update is called once per frame
@@ -58,6 +69,26 @@ public class UIScript : MonoBehaviour
             ifAction = true;
             DoAction();
         }
+
+        //if (Input.GetKeyUp("r"))
+        //{
+        //    StartCoroutine(SwipeIcon("r"));
+        //}
+
+        //if (Input.GetKeyUp("l"))
+        //{
+        //    StartCoroutine(SwipeIcon("l"));
+        //}
+
+        //if (Input.GetKeyUp("u"))
+        //{
+        //    StartCoroutine(SwipeAd("u"));
+        //}
+
+        //if (Input.GetKeyUp("d"))
+        //{
+        //    StartCoroutine(SwipeAd("d"));
+        //}
     }
 
     void CountTouchTime()
@@ -97,45 +128,170 @@ public class UIScript : MonoBehaviour
     {
         if (touchHistory[1] == touchHistory[0] + 1 && touchHistory[1] / 3 == touchHistory[0] / 3)           // swipe right
         {
-            nowTouch++;
+            StartCoroutine(SwipeIcon("r"));
         }
         else if (touchHistory[1] == touchHistory[0] - 1 && touchHistory[1] / 3 == touchHistory[0] / 3)      // swipe left
         {
-            nowTouch--;
+            StartCoroutine(SwipeIcon("l"));
         }
         else if (touchHistory[1] == touchHistory[0] + 3)                                                    // swipe down
         {
-            nowTouch += 2;
+            StartCoroutine(SwipeAd("d"));
         }
         else if (touchHistory[1] == touchHistory[0] - 3)                                                    // swipe up
         {
-            nowTouch -= 2;
+            StartCoroutine(SwipeAd("u"));
         }
         nowTouch = (nowTouch + 4) % 4;
 
-        UpdateFrame();
+        //UpdateFrame();
     }
 
-    void UpdateFrame()
+    void InitAll()
     {
-        for (int i = 0; i < frames.Length; i++)
-        {
-            frames[i].SetActive(false);
-        }
-        frames[nowTouch].SetActive(true);
+        icons[(nowTouch + 0) % 4].SetActive(true);
+        icons[(nowTouch + 1) % 4].SetActive(true);
+        icons[(nowTouch + 2) % 4].SetActive(false);
+        icons[(nowTouch + 3) % 4].SetActive(true);
 
-        StartCoroutine(UpdateAd());
+        icons[(nowTouch + 0) % 4].transform.localPosition = new Vector3(0f, 1f, 0f);
+        icons[(nowTouch + 1) % 4].transform.localPosition = new Vector3(2f, 0.5f, 0f);
+        icons[(nowTouch + 2) % 4].transform.localPosition = new Vector3(0f, 0f, 0f);
+        icons[(nowTouch + 3) % 4].transform.localPosition = new Vector3(-2f, 0.5f, 0f);
+
+        icons[(nowTouch + 0) % 4].transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+        icons[(nowTouch + 1) % 4].transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
+        icons[(nowTouch + 3) % 4].transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
+
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 2; j++)
+            {
+                ads[i, j].SetActive(false);
+            }
+        }
     }
 
-    IEnumerator UpdateAd()
+    private IEnumerator SwipeIcon(string direction)
     {
-        for (int i = 0; i < ads.Length; i++)
+        if (direction == "r")
         {
-            ads[i].SetActive(false);
+            icons[(nowTouch + 2) % 4].SetActive(true);
+            icons[(nowTouch + 2) % 4].transform.localPosition = new Vector3(-2f, 0f, 0f);
+            icons[(nowTouch + 2) % 4].transform.localScale = new Vector3(0f, 0f, 0f);
+
+            ads[(nowTouch + 3) % 4, 0].SetActive(true);
+            ads[(nowTouch + 3) % 4, 0].transform.localPosition = new Vector3(0f, 1f, 0f);
+            ads[(nowTouch + 3) % 4, 0].transform.localScale = new Vector3(0f, 0f, 0f);
+
+            ads[(nowTouch + 0) % 4, nowAd].transform.localPosition = new Vector3(0f, 0f, 0f);
+            for (int i = 0; i < 10; i++)
+            {
+                icons[(nowTouch + 0) % 4].transform.localPosition += new Vector3(0.2f, -0.05f, 0f);
+                icons[(nowTouch + 1) % 4].transform.localPosition += new Vector3(0f, -0.05f, 0f);
+                icons[(nowTouch + 2) % 4].transform.localPosition += new Vector3(0f, 0.05f, 0f);
+                icons[(nowTouch + 3) % 4].transform.localPosition += new Vector3(0.2f, 0.05f, 0f);
+
+                icons[(nowTouch + 0) % 4].transform.localScale += new Vector3(-0.005f, -0.005f, -0.005f);
+                icons[(nowTouch + 1) % 4].transform.localScale += new Vector3(-0.02f, -0.02f, -0.02f);
+                icons[(nowTouch + 2) % 4].transform.localScale += new Vector3(0.02f, 0.02f, 0.02f);
+                icons[(nowTouch + 3) % 4].transform.localScale += new Vector3(0.005f, 0.005f, 0.005f);
+
+                ads[(nowTouch + 0) % 4, nowAd].transform.localScale += new Vector3(-0.05f, -0.05f, -0.05f);
+                ads[(nowTouch + 3) % 4, 0].transform.localScale += new Vector3(0.05f, 0.05f, 0.05f);
+
+                yield return new WaitForSeconds(0.1f);
+            }
+
+            icons[(nowTouch + 1) % 4].SetActive(false);
+            ads[(nowTouch + 0) % 4, nowAd].SetActive(false);
+
+            nowTouch += 3;
+            nowAd = 0;
         }
+        else if (direction == "l")
+        {
+            icons[(nowTouch + 2) % 4].SetActive(true);
+            icons[(nowTouch + 2) % 4].transform.localPosition = new Vector3(2f, 0f, 0f);
+            icons[(nowTouch + 2) % 4].transform.localScale = new Vector3(0f, 0f, 0f);
 
-        yield return new WaitForSeconds(1f);
+            ads[(nowTouch + 1) % 4, 0].SetActive(true);
+            ads[(nowTouch + 1) % 4, 0].transform.localPosition = new Vector3(0f, 1f, 0f);
+            ads[(nowTouch + 1) % 4, 0].transform.localScale = new Vector3(0f, 0f, 0f);
 
-        ads[nowTouch].SetActive(true);
+            ads[(nowTouch + 0) % 4, nowAd].transform.localPosition = new Vector3(0f, 1f, 0f);
+            for (int i = 0; i < 10; i++)
+            {
+                icons[(nowTouch + 0) % 4].transform.localPosition += new Vector3(-0.2f, -0.05f, 0f);
+                icons[(nowTouch + 1) % 4].transform.localPosition += new Vector3(-0.2f, 0.05f, 0f);
+                icons[(nowTouch + 2) % 4].transform.localPosition += new Vector3(0f, 0.05f, 0f);
+                icons[(nowTouch + 3) % 4].transform.localPosition += new Vector3(0f, -0.05f, 0f);
+
+                icons[(nowTouch + 0) % 4].transform.localScale += new Vector3(-0.005f, -0.005f, -0.005f);
+                icons[(nowTouch + 1) % 4].transform.localScale += new Vector3(0.005f, 0.005f, 0.005f);
+                icons[(nowTouch + 2) % 4].transform.localScale += new Vector3(0.02f, 0.02f, 0.02f);
+                icons[(nowTouch + 3) % 4].transform.localScale += new Vector3(-0.02f, -0.02f, -0.02f);
+
+                ads[(nowTouch + 0) % 4, nowAd].transform.localScale += new Vector3(-0.05f, -0.05f, -0.05f);
+                ads[(nowTouch + 1) % 4, 0].transform.localScale += new Vector3(0.05f, 0.05f, 0.05f);
+
+                yield return new WaitForSeconds(0.1f);
+            }
+
+            icons[(nowTouch + 3) % 4].SetActive(false);
+            ads[(nowTouch + 0) % 4, nowAd].SetActive(false);
+
+            nowTouch += 1;
+            nowAd = 0;
+        }
+    }
+
+    private IEnumerator SwipeAd(string direction)
+    {
+        if (direction == "u" && nowAd == 0)
+        {
+            ads[nowTouch % 4, 1].SetActive(true);
+            ads[nowTouch % 4, 1].transform.localScale = new Vector3(0f, 0f, 0f);
+            ads[nowTouch % 4, 0].transform.localPosition = new Vector3(0f, 0f, 0f);
+            ads[nowTouch % 4, 1].transform.localPosition = new Vector3(0f, 1f, 0f);
+            for (int i = 0; i < 10; i++)
+            {
+                ads[nowTouch % 4, 0].transform.localScale += new Vector3(-0.05f, -0.05f, -0.05f);
+                ads[nowTouch % 4, 1].transform.localScale += new Vector3(0.05f, 0.05f, 0.05f);
+                yield return new WaitForSeconds(0.1f);
+            }
+
+            ads[nowTouch % 4, 0].SetActive(false);
+            nowAd = 1;
+        }
+        else if (direction == "d" && nowAd == 1)
+        {
+            ads[nowTouch % 4, 0].SetActive(true);
+            ads[nowTouch % 4, 0].transform.localScale = new Vector3(0f, 0f, 0f);
+            ads[nowTouch % 4, 0].transform.localPosition = new Vector3(0f, 1f, 0f);
+            ads[nowTouch % 4, 1].transform.localPosition = new Vector3(0f, 0f, 0f);
+            for (int i = 0; i < 10; i++)
+            {
+                ads[nowTouch % 4, 0].transform.localScale += new Vector3(0.05f, 0.05f, 0.05f);
+                ads[nowTouch % 4, 1].transform.localScale += new Vector3(-0.05f, -0.05f, -0.05f);
+                yield return new WaitForSeconds(0.1f);
+            }
+
+            ads[nowTouch % 4, 1].SetActive(false);
+            nowAd = 0;
+        }
+        else
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                ads[nowTouch % 4, nowAd].transform.localScale += new Vector3(-0.05f, -0.05f, -0.05f);
+                yield return new WaitForSeconds(0.1f);
+            }
+            for (int i = 0; i < 3; i++)
+            {
+                ads[nowTouch % 4, nowAd].transform.localScale += new Vector3(0.05f, 0.05f, 0.05f);
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
     }
 }
